@@ -18,6 +18,15 @@ namespace DDDModel.Infra.Data.Context
 
         public DbSet<User> Users { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer("Server=8SN05Y2;Database=testDDD;Trusted_Connection=True;MultipleActiveResultSets=true");
+                base.OnConfiguring(optionsBuilder);
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

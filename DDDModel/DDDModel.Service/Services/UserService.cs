@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DDDModel.Service.Services
 {
-    public class UserService<User> : IBaseService<User> where User : BaseEntity
+    public class UserService : IUserService
     {
 
         private readonly IBaseRepository<User> _baseRepository;
@@ -22,28 +22,40 @@ namespace DDDModel.Service.Services
 
         public User Add<UserValidator>(User obj) where UserValidator : AbstractValidator<User>
         {
-            //_baseRepository.Insert(obj);
-            throw new NotImplementedException();
+            Validate(obj, Activator.CreateInstance<UserValidator>());
+            _baseRepository.Insert(obj);
+            return obj;
         }
 
         public void Delete(int id)
         {
-            throw new NotImplementedException();
+            _baseRepository.Delete(id);
         }
 
         public IList<User> Get()
         {
-            throw new NotImplementedException();
+            return _baseRepository.Select();
         }
 
         public User GetById(int id)
         {
-            throw new NotImplementedException();
+            return _baseRepository.Select(id);
         }
 
         public User Update<UserValidator>(User obj) where UserValidator : AbstractValidator<User>
         {
-            throw new NotImplementedException();
+            Validate(obj, Activator.CreateInstance<UserValidator>());
+            _baseRepository.Update(obj);
+            return obj;
         }
+
+        private void Validate(User obj, AbstractValidator<User> validator)
+        {
+            if (obj == null)
+                throw new Exception("Registros não detectados!");
+
+            validator.ValidateAndThrow(obj);
+        }
+
     }
 }

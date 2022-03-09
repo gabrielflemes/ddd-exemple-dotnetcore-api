@@ -1,7 +1,15 @@
+using AutoMapper;
+using DDDModel.Domain.Dtos;
+using DDDModel.Domain.Entities;
+using DDDModel.Domain.Interfaces;
+using DDDModel.Infra.Data.Context;
+using DDDModel.Infra.Data.Repository;
+using DDDModel.Service.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -28,10 +36,37 @@ namespace DDDModel.Application
         {
 
             services.AddControllers();
+
+            //swagger configuration
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "DDDModel.Application", Version = "v1" });
             });
+
+
+            //injection config
+            services.AddScoped<IBaseRepository<User>, BaseRepository<User>>();
+            services.AddScoped<IUserService, UserService>();
+
+            //automapper
+            var config = new MapperConfiguration(cfg =>
+            {
+                //User
+                cfg.CreateMap<UserDto, User>();
+                cfg.CreateMap<User, UserDto>();
+
+               
+            });
+            IMapper mapper = config.CreateMapper();
+            services.AddSingleton(mapper);
+
+            //sql server connection
+            services.AddDbContext<DataContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("SQLConnectionStrings"));
+            });
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
